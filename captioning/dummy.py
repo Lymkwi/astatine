@@ -11,6 +11,8 @@ from .model import CaptionModule
 # Logging
 logger = logging.getLogger("astatine.caps.dummy")
 
+module = "DummyCaptionModule"
+
 class DummyCaptionModule(CaptionModule):
     def __init__(self):
         logger.debug("Initialized dummy captioning module")
