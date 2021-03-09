@@ -17,11 +17,11 @@ from sys import argv # To retrieve the images
 from pathlib import Path
 
 # Internal full imports (to activate __init__ code)
-import utils    # utils first to intialize logging
+import utilities    # utils first to intialize logging
 import audio
 import captioning
 # Internal partial import
-from utils.config import configuration, save_configuration
+from utilities.config import configuration, save_configuration
 from audio.ttsx3 import TTSX3Module
 from captioning.dummy import DummyCaptionModule
 
@@ -48,16 +48,14 @@ def main(img_path):
     captioning_module = captioning.load_module(configuration["captioning"]["module"])
     # process
     caption = captioning_module.process(img_path)
+    return caption
 
-    # TTS
-    logger.debug("Initializing TTS module")
-    module = audio.load_module(configuration["audio"]["module"])
-    result = module.process(caption)
-    return result
-
+import torch
 if __name__ == "__main__":
+    torch.hub.load('ultralytics/yolov5', 'yolov5s', pretrained=True)
     # Obtain images
     for img_path in argv[1:]:
-        _ = main(img_path)
+        k = main(img_path)
+        print(f"{img_path}: \"{k}\"")
     # Save the configuration before leaving
     save_configuration(configuration)
