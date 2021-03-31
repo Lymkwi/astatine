@@ -50,9 +50,7 @@ def main(img_path):
     caption = captioning_module.process(img_path)
     return caption
 
-import torch
 if __name__ == "__main__":
-    torch.hub.load('ultralytics/yolov5', 'yolov5s', pretrained=True)
     # Obtain images
     for img_path in argv[1:]:
         k = main(img_path)
