@@ -12,7 +12,7 @@ def init_logger():
     # it takes any message that arrives to the main Astatine logger
     # and formats them
     # FIXME this is all hardcoded
-    globalfilehandler = logging.FileHandler("/tmp/astatine.log")
+    globalfilehandler = logging.FileHandler("astatine.log")
     globalstreamhandler = logging.StreamHandler()
     formatter = logging.Formatter("[%(asctime)s][%(name)-20s][%(levelname)-8s]"
         +"(%(filename)s::%(funcName)s::%(lineno)s) %(message)s")
