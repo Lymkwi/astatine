@@ -1,0 +1,35 @@
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>Online Image Captionning</title>
+		<style>
+			#input {display: flex; flex-flow: row nowrap; align-items: center;}
+			#input form {margin-right: 60px; min-width: 360px;}
+			#preview {height: 100px;}
+			#boxes {width: 95%;}
+			#caption {font-family: sans-serif;}
+		</style>
+	</head>
+	
+	<body>
+		<div id="input">
+			<form id="captForm" action="/captionning" method="post">
+				<fieldset>
+					<legend>Image to be captionned</legend>
+						<input type="file" accept="image/*" name="image" id="pictureSelect" onchange="loadImage(event)" />
+						<br/>
+						<input type="checkbox" id="check" name="send_result" />
+						<label for="check">Send result image with boxes</label><br>
+						<br/>
+						<input type="submit" id="uploadButton" value="Upload" disabled/>
+				</fieldset>
+			</form>
+			<img id="preview"/>
+		</div>
+		<h2 id="caption"></h2>
+		<img id="boxes"/>
+		
+		<script src="{{ url_for('static', filename='script.js') }}"></script>
+	</body>
+
+</html>

@@ -56,7 +56,7 @@ def xywh2xyxy(x):
 class SimpleYOLOModule(CaptionModule):
     def __init__(self):
         logger.debug("Initializing")
-        self.model = torch.hub.load('ultralytics/yolov5', 'yolov5s', pretrained=True, force_reload=True).autoshape()
+        self.model = torch.hub.load('ultralytics/yolov5', 'yolov5s', pretrained=True, force_reload=False).autoshape()
     
     def process(self, img):
         detections = self.model([str(img)])

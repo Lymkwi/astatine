@@ -17,13 +17,13 @@ from sys import argv # To retrieve the images
 from pathlib import Path
 
 # Internal full imports (to activate __init__ code)
-import utilities    # utils first to intialize logging
-import audio
-import captioning
+import ml_models.astatine.utilities    # utils first to intialize logging
+import ml_models.astatine.audio
+import ml_models.astatine.captioning as captioning
 # Internal partial import
-from utilities.config import configuration, save_configuration
-from audio.ttsx3 import TTSX3Module
-from captioning.dummy import DummyCaptionModule
+from ml_models.astatine.utilities.config import configuration, save_configuration
+from ml_models.astatine.audio.ttsx3 import TTSX3Module
+from ml_models.astatine.captioning.dummy import DummyCaptionModule
 
 
 # Logging
@@ -50,7 +50,10 @@ def main(img_path):
     caption = captioning_module.process(img_path)
     return caption
 
+# import torch
+
 if __name__ == "__main__":
+    # torch.hub.load('ultralytics/yolov5', 'yolov5s', pretrained=True)
     # Obtain images
     for img_path in argv[1:]:
         k = main(img_path)
