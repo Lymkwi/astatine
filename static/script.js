@@ -166,7 +166,7 @@ window.addEventListener('load', function () {
 
 		data.push("--" + boundary + "--\r\n"); // Close the body's request
 
-		XHR.open('POST', '/captionning');
+		XHR.open('POST', '/yolo');
 
 		// Add the required HTTP header to handle a multipart form data POST request
 		XHR.setRequestHeader('Content-Type',"multipart/form-data; boundary=" + boundary);

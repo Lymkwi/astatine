@@ -29,7 +29,11 @@ api.config['UPLOAD_FOLDER'] = 'received'
 def home():
     return render_template('index.html')
 
-@api.route('/captionning', methods=['POST'])
+@api.route('/captioning', methods=['POST'])
+def captioning():
+    return "ERROR: Feature in Work in Progress", 404
+
+@api.route('/yolo', methods=['POST'])
 def yolo():
     if 'image' not in request.files:
         return "ERROR", 500
