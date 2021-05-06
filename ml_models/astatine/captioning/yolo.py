@@ -1,6 +1,13 @@
 """Image captioning module with YOLO"""
 
 import logging
+import math
+import random
+
+import torch
+import cv2
+
+import numpy as np
 
 # Internal partial import
 from .model import CaptionModule
@@ -8,9 +15,6 @@ from .model import CaptionModule
 logger = logging.getLogger("astatine.caps.yolo")
 
 module = "SimpleYOLOModule"
-
-import torch
-import math
 
 def clip_coords(boxes, img_shape):
     # Clip bounding xyxy bounding boxes to image shape (height, width)
@@ -46,18 +50,20 @@ def xyxy2xywh(x):
 
 def xywh2xyxy(x):
     # Convert nx4 boxes from [x, y, w, h] to [x1, y1, x2, y2] where xy1=top-left, xy2=bottom-right
+    # Largely inspired by yolo's although we use lists and they
+    # used tensors so we had to change the array indices
     y = x.clone() if isinstance(x, torch.Tensor) else np.copy(x)
-    y[:, 0] = x[:, 0] - x[:, 2] / 2  # top left x
-    y[:, 1] = x[:, 1] - x[:, 3] / 2  # top left y
-    y[:, 2] = x[:, 0] + x[:, 2] / 2  # bottom right x
-    y[:, 3] = x[:, 1] + x[:, 3] / 2  # bottom right y
+    y[0] = x[0] - x[2] / 2  # top left x
+    y[1] = x[1] - x[3] / 2  # top left y
+    y[2] = x[0] + x[2] / 2  # bottom right x
+    y[3] = x[1] + x[3] / 2  # bottom right y
     return y
 
 class SimpleYOLOModule(CaptionModule):
     def __init__(self):
         logger.debug("Initializing")
         self.model = torch.hub.load('ultralytics/yolov5', 'yolov5s', pretrained=True, force_reload=False).autoshape()
-    
+
     def process(self, img):
         detections = self.model([str(img)])
         names = detections.names
@@ -66,13 +72,15 @@ class SimpleYOLOModule(CaptionModule):
         if len(pred) == 0:
             return description
 
+        colors = [[random.randint(0, 255) for _ in range(3)] for _ in names]
+
         #p, s, im0, frame = path, '', im0s, getattr(dataset, 'frame', 0)
         #p = Path(p)  # to Path
         #save_path = str(save_dir / p.name)  # img.jpg
         #txt_path = str(save_dir / 'labels' / p.stem) + ('' if dataset.mode == 'image' else f'_{frame}')  # img.txt
         #s += '%gx%g ' % img.shape[2:]  # print string
         #gn = torch.tensor(im0.shape)[[1, 0, 1, 0]]  # normalization gain whwh
-            
+
         # Rescale boxes from img_size to im0 size
         #det[:, :4] = scale_coords(img.shape[2:], det[:, :4], im0.shape).round()
 
@@ -83,8 +91,8 @@ class SimpleYOLOModule(CaptionModule):
 
         # Write results
         res = []
+        im0 = cv2.imread(str(img))
         for *xywh, conf, cls in reversed(pred): # xyxy correspond aux coordonnées des boites, conf correspond au score de la boite, cls l'indice du nom dans le dataset
-            print(xywh)
             if xywh[0] <= 0.25 and xywh[1] <= 0.25:  #Haut gauche
                 xywh.append(0)
             elif xywh[0] <= 0.75 and xywh[1] <= 0.25: #Haut
@@ -110,9 +118,39 @@ class SimpleYOLOModule(CaptionModule):
                 xywh.append(8)
 
             res.append([xywh[0], xywh[1], xywh[2], xywh[3], xywh[4], conf, names[int(cls)]])
-            #label = f'{names[int(cls)]} {conf:.2f}'
-            #plot_one_box(xyxy, im0, label=label, color=colors[int(cls)], line_thickness=3)"""
-        
+            # Compute the image
+            height, width = im0.shape[0:2]
+            # Convert coordinates to normalized corners
+            xyxyn = torch.tensor([float(k) for k in xywh2xyxy(xywh)])
+            # De-normalize the corners
+            xyxy = [xyxyn[0] * width, xyxyn[1] * height,
+                    xyxyn[2] * width, xyxyn[3] * height]
+            # Make sure it's all a list of ints
+            xyxy = list(map(int,xyxy))
+            # Plot one box, inspired by plot_one_box
+            # Line thickness, function of the size
+            tl = round(0.002 * (im0.shape[0] + im0.shape[1]) / 2) + 1
+            color = colors[int(cls)] # Colors
+            # Define the two corners of the rectangle
+            corner1 = (int(xyxy[0]), int(xyxy[1]))
+            corner2 = (int(xyxy[2]), int(xyxy[3]))
+            im0 = cv2.rectangle(im0, corner1, corner2, color, tl, cv2.LINE_AA)
+            # Now add the label
+            label = f"{names[int(cls)]} {conf:.2f}"
+            label_tf = max(tl - 1, 1) # Font thickness for label
+            t_size = cv2.getTextSize(label, 0, fontScale=tl / 3,
+                    thickness=label_tf)[0]
+            corner2 = corner1[0] + t_size[0], corner1[1] - t_size[1] - 3
+            # Underlying rectangle
+            im0 = cv2.rectangle(im0, corner1, corner2, color, -1, cv2.LINE_AA)
+            # And now the text
+            im0 = cv2.putText(im0, label, (corner1[0], corner1[1]-2),
+                    0, tl / 3, [255, 255, 255], thickness=label_tf,
+                    lineType=cv2.LINE_AA)
+
+        print(f"Writing new image to {img}")
+        cv2.imwrite(str(img), im0)
+
         situation = {
             0: "in the top left-hand corner.",
             1: "on the top",
@@ -124,7 +162,7 @@ class SimpleYOLOModule(CaptionModule):
             7: "at the bottom.",
             8: "in the bottom right-hand corner."
         }
-        
+
         for loc in range(9):
             objects = {}
             match = [x for x in res if math.floor(x[4]) == loc]

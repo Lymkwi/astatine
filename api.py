@@ -55,7 +55,7 @@ def yolo():
         file.save(path)
         caption = load.main(path)
 
-        resultFile = 'zizou.jpg'
+        resultFile = path
 
         responseFields = {'caption': caption}
 
