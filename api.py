@@ -1,8 +1,9 @@
-from flask import Flask, request, Response, render_template
+"""API module"""
 import os
 import random
 from pathlib import Path
 from requests_toolbelt import MultipartEncoder
+from flask import Flask, request, Response, render_template
 
 # from ml_models.yolov5 import detect as detection
 # from ml_models.yolov5 import train
@@ -13,6 +14,10 @@ from requests_toolbelt import MultipartEncoder
 # context.use_certificate_file('server.crt')
 
 from ml_models.astatine import main as load
+from data.download import download_data
+
+# Download missing datasets (~400Mo)
+download_data()
 
 api = Flask(__name__)
 
@@ -31,7 +36,8 @@ def home():
 
 @api.route('/<module>', methods=['POST'])
 def module_caption(module):
-    if module not in ['yolo', 'captioning']: return "Module not found.", 404
+    if module not in ['yolo', 'captioning']:
+        return "Module not found.", 404
     if 'image' not in request.files:
         return "ERROR", 500
 
