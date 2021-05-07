@@ -29,9 +29,15 @@ from ml_models.astatine.captioning.dummy import DummyCaptionModule
 # Logging
 logger = logging.getLogger("astatine.main")
 
-def main(img_path):
+def main(img_path, model = None):
     """This is the main function, the entry point of the app"""
     logger.debug(f"Beginning process chain on '{img_path}'")
+
+    # Apply the model
+    model = model or configuration["captioning"]["module"]
+    # Apply the equivalent nicknames
+    model = "SimpleYOLOModule" if model == "yolo" else model
+    model = "Resnet101CaptionModule" if model == "captioning" else model
 
     # Image verification
     logger.debug("Verifying image authenticity")
@@ -45,7 +51,7 @@ def main(img_path):
     # Machine learning processing
     logger.debug("Obtaining image description")
     logger.debug("Initializing captioning module")
-    captioning_module = captioning.load_module(configuration["captioning"]["module"])
+    captioning_module = captioning.load_module(model)
     # process
     caption = captioning_module.process(img_path)
     return caption
