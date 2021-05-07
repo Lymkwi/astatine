@@ -45,6 +45,11 @@ def yolo():
 
     ext = file.filename.split('.')[-1]
 
+    # Check if the upload folder exists
+    upload_path = Path(f"{api.config['UPLOAD_FOLDER']}")
+    if not upload_path.exists():
+        upload_path.mkdir()
+
     id = random.randint(0, 1000)
     while Path(f"{api.config['UPLOAD_FOLDER']}/tmp_{id}.{ext}").is_file():
         id = random.randint(0, 1000)
