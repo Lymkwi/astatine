@@ -29,17 +29,11 @@ api.config['UPLOAD_FOLDER'] = 'received'
 def home():
     return render_template('index.html')
 
-@api.route('/captioning', methods=['POST'])
-def captioning():
-    return "ERROR: Feature in Work in Progress", 404
-
-@api.route('/yolo', methods=['POST'])
-def yolo():
+@api.route('/<module>', methods=['POST'])
+def module_caption(module):
+    if module not in ['yolo', 'captioning']: return "Module not found.", 404
     if 'image' not in request.files:
         return "ERROR", 500
-    print(request.headers)
-    print(request.get_data())
-    print(request.files)
 
     file = request.files['image']
 
@@ -58,13 +52,13 @@ def yolo():
 
     if file:
         file.save(path)
-        caption = load.main(path)
+        caption = load.main(path, module)
 
         resultFile = path
 
         responseFields = {'caption': caption}
-
-        if request.form['send_result'] == 'true':
+        
+        if module == 'yolo' and request.form['send_result'] == 'true':
             responseFields['result'] = (f'preview.{ext}', open(resultFile, 'rb'), file.content_type)
 
         os.remove(path)
