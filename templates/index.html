@@ -5,6 +5,9 @@
 		<style>
 			#input {display: flex; flex-flow: row nowrap; align-items: center;}
 			#input form {margin-right: 60px; min-width: 360px;}
+			input {margin-bottom: 5px;}
+			.inputContainer {margin-bottom: 5px;}
+			#uploadButton {margin: 10px 0px 0px 5px;}
 			#preview {height: 100px;}
 			#boxes {width: 95%;}
 			#caption {font-family: sans-serif;}
@@ -16,11 +19,20 @@
 			<form id="captForm" action="/yolo" method="post">
 				<fieldset>
 					<legend>Image to be captionned</legend>
-						<input type="file" accept="image/*" name="image" id="pictureSelect" onchange="loadImage(event)" />
-						<br/>
-						<input type="checkbox" id="check" name="send_result" />
-						<label for="check">Send result image with boxes</label><br>
-						<br/>
+						<div class="inputContainer">
+							<input type="file" accept="image/*" name="image" id="pictureSelect" />
+						</div>
+						<div class="inputContainer">
+							<input type="radio" id="radioYolo" name="endpointRadio" value="yolo" checked>
+							<label for="radioYolo">Yolo</label>
+							<br/>
+							<input type="radio" id="radioCapt" name="endpointRadio" value="captionning" checked>
+							<label for="radioCapt">Captionning</label>
+						</div>
+						<div class="inputContainer">
+							<input type="checkbox" id="check" name="send_result" />
+							<label for="check">Send result image with boxes</label>
+						</div>
 						<input type="submit" id="uploadButton" value="Upload" disabled/>
 				</fieldset>
 			</form>
@@ -29,7 +41,8 @@
 		<h2 id="caption"></h2>
 		<img id="boxes"/>
 		
-		<script src="{{ url_for('static', filename='script.js') }}"></script>
+		<script src="../static/script.js">
+		<!--script src="{{ url_for('static', filename='script.js') }}"--></script>
 	</body>
 
 </html>
