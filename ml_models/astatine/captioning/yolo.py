@@ -153,7 +153,7 @@ class SimpleYOLOModule(CaptionModule):
 
         situation = {
             0: "in the top left-hand corner.",
-            1: "on the top",
+            1: "on the top.",
             2: "in the top right-hand corner.",
             3: "on the left.",
             4: "right in front of you.",
@@ -173,7 +173,7 @@ class SimpleYOLOModule(CaptionModule):
                     objects[x[6]] += 1
             if len(objects) == 1:
                 item = next(iter(objects))
-                description += f'There is {objects[item]} {item} {situation[loc]} '
+                description += f'There {"is" if objects[item] == 1 else "are"} {objects[item]} {item} {situation[loc]} '
             elif len(objects) > 1:
                 objects = dict(sorted(objects.items(), key=lambda item: item[1], reverse=True))
                 keylist = list(objects.keys())
