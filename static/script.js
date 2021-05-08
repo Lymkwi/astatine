@@ -120,12 +120,12 @@ function getEndpoint() {
 // if the endpoint selected at page load is captionning, disable the checkbox
 // we do this because the captionning cannot yield an image with boxes
 // only the yolo-based model can do this
-checkbox.disabled = (getEndpoint() === 'captionning');
+checkbox.disabled = (getEndpoint() === 'captioning');
 
 // when a new endpoint is selected, enable or disable the checkbox
 for(var i = 0; i < endpointRadios.length; i++) {
 	endpointRadios[i].addEventListener('change', function(event) {
-        checkbox.disabled = (event.target.value === 'captionning')
+        checkbox.disabled = (event.target.value === 'captioning')
     });
 }
 
@@ -137,6 +137,12 @@ function imgToUrl(img, imgType) {
 	let blob = new Blob([buffer], {type:imgType});
 	let urlCreator = window.URL || window.webkitURL;
 	return urlCreator.createObjectURL(blob);
+}
+
+
+// I blame backend for having to use this
+function capitalizeFirstLetter(string) {
+	return string.charAt(0).toUpperCase() + string.slice(1);
 }
 
 
@@ -219,12 +225,13 @@ window.addEventListener('load', function () {
 				let boundary = MultiPart_getBoundary(header);
 				let res = MultiPart_parse(XHR.response, boundary);
 				if('caption' in res) {
-					caption.textContent = new TextDecoder("utf-8").decode(res['caption']);
+					caption.textContent = capitalizeFirstLetter(new TextDecoder("utf-8").decode(res['caption']));
 				}
 				resultImage.src = ""
-				for(key in res.keys()) {
+				for(key in res) {
 					// the image name should be preview.png / preview.jpg / ...
-					if(key.startswith('preview.')) {
+					console.log(key);
+					if(key.startsWith('preview.')) {
 						resultImage.src = imgToUrl(res[key], "image/" + key.substring(8));;
 						break;
 					}

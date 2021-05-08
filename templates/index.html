@@ -1,6 +1,7 @@
 <html>
 	<head>
 		<meta charset="UTF-8">
+		<!--link rel="icon" href="{{ url_for('static', filename='smort.ico') }}" /-->
 		<title>Online Image Captionning</title>
 		<style>
 			#input {display: flex; flex-flow: row nowrap; align-items: center;}
@@ -26,7 +27,7 @@
 							<input type="radio" id="radioYolo" name="endpointRadio" value="yolo" checked>
 							<label for="radioYolo">Yolo</label>
 							<br/>
-							<input type="radio" id="radioCapt" name="endpointRadio" value="captionning" checked>
+							<input type="radio" id="radioCapt" name="endpointRadio" value="captioning" checked>
 							<label for="radioCapt">Captionning</label>
 						</div>
 						<div class="inputContainer">
@@ -41,8 +42,8 @@
 		<h2 id="caption"></h2>
 		<img id="boxes"/>
 		
-		<script src="../static/script.js">
-		<!--script src="{{ url_for('static', filename='script.js') }}"--></script>
+		<!--script src="../static/script.js"-->
+		<script src="{{ url_for('static', filename='script.js') }}"></script>
 	</body>
 
 </html>
