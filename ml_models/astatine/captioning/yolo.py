@@ -16,6 +16,50 @@ logger = logging.getLogger("astatine.caps.yolo")
 
 module = "SimpleYOLOModule"
 
+def plural(singular):
+    specialCases = {'person' : 'people',
+    'bus' : 'buses',
+    'bench' : 'benches',
+    'sheep' : 'sheep',
+    'skis' : 'skis',
+    'sandwich' : 'sandwiches',
+    'broccoli' : 'broccoli',
+    'couch' : 'couches',
+    'mouse' : 'mice',
+    'scissors' : 'pairs of scissors',
+    'toothbrush' : 'toothbrushes'}
+
+    return specialCases[singular] if singular in specialCases else singular + "s"
+
+def formatPlural(item, number):
+    return item if number == 1 else plural(item)
+
+# https://stackoverflow.com/questions/44650888/resize-an-image-without-distortion-opencv
+def image_resize(image, width = None, height = None, inter = cv2.INTER_AREA):
+    # initialize the dimensions of the image to be resized and grab the image size
+    dim = None
+    (h, w) = image.shape[:2]
+
+    # if both the width and height are None, then return the original image
+    if width is None and height is None:
+        return image
+
+    # check to see if the width is None
+    if width is None:
+        # calculate the ratio of the height and construct the dimensions
+        r = height / float(h)
+        dim = (int(w * r), height)
+
+    # otherwise, the height is None
+    else:
+        # calculate the ratio of the width and construct the dimensions
+        r = width / float(w)
+        dim = (width, int(h * r))
+
+    resized = cv2.resize(image, dim, interpolation = inter)
+
+    return resized
+
 def clip_coords(boxes, img_shape):
     # Clip bounding xyxy bounding boxes to image shape (height, width)
     boxes[:, 0].clamp_(0, img_shape[1])  # x1
@@ -149,6 +193,13 @@ class SimpleYOLOModule(CaptionModule):
                     lineType=cv2.LINE_AA)
 
         print(f"Writing new image to {img}")
+
+        (height, width) = im0.shape[:2]
+        if height > width:
+            im0 = image_resize(im0, height=800)
+        else:
+            im0 = image_resize(im0, width=800)
+        
         cv2.imwrite(str(img), im0)
 
         situation = {
@@ -173,13 +224,13 @@ class SimpleYOLOModule(CaptionModule):
                     objects[x[6]] += 1
             if len(objects) == 1:
                 item = next(iter(objects))
-                description += f'There {"is" if objects[item] == 1 else "are"} {objects[item]} {item} {situation[loc]} '
+                description += f'There {"is" if objects[item] == 1 else "are"} {objects[item]} {formatPlural(item, objects[item])} {situation[loc]} '
             elif len(objects) > 1:
                 objects = dict(sorted(objects.items(), key=lambda item: item[1], reverse=True))
                 keylist = list(objects.keys())
                 text = ""
                 for obj in keylist[:-2]:
-                    text += f'{objects[obj]} {obj}, '
-                description += f'There are {text}{objects[keylist[-2]]} {keylist[-2]} and {objects[keylist[-1]]} {keylist[-1]} {situation[loc]} '
+                    text += f'{objects[obj]} {formatPlural(obj, objects[obj])}, '
+                description += f'There are {text}{objects[keylist[-2]]} {formatPlural(keylist[-2], objects[keylist[-2]])} and {objects[keylist[-1]]} {formatPlural(keylist[-1], objects[keylist[-1]])} {situation[loc]} '
 
         return description
