@@ -117,8 +117,8 @@ function getEndpoint() {
 	}
 }
 
-// if the endpoint selected at page load is captionning, disable the checkbox
-// we do this because the captionning cannot yield an image with boxes
+// if the endpoint selected at page load is captioning, disable the checkbox
+// we do this because the captioning cannot yield an image with boxes
 // only the yolo-based model can do this
 checkbox.disabled = (getEndpoint() === 'captioning');
 
@@ -230,7 +230,6 @@ window.addEventListener('load', function () {
 				resultImage.src = ""
 				for(key in res) {
 					// the image name should be preview.png / preview.jpg / ...
-					console.log(key);
 					if(key.startsWith('preview.')) {
 						resultImage.src = imgToUrl(res[key], "image/" + key.substring(8));;
 						break;

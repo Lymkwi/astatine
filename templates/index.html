@@ -2,7 +2,7 @@
 	<head>
 		<meta charset="UTF-8">
 		<!--link rel="icon" href="{{ url_for('static', filename='smort.ico') }}" /-->
-		<title>Online Image Captionning</title>
+		<title>Online Image Captioning</title>
 		<style>
 			#input {display: flex; flex-flow: row nowrap; align-items: center;}
 			#input form {margin-right: 60px; min-width: 360px;}
@@ -10,8 +10,9 @@
 			.inputContainer {margin-bottom: 5px;}
 			#uploadButton {margin: 10px 0px 0px 5px;}
 			#preview {height: 100px;}
-			#boxes {width: 95%;}
 			#caption {font-family: sans-serif;}
+			#boxesContainer {height: 70%; display: flex; justify-content: center;}
+			#boxes {max-width: 95%;}
 		</style>
 	</head>
 	
@@ -19,7 +20,7 @@
 		<div id="input">
 			<form id="captForm" action="/yolo" method="post">
 				<fieldset>
-					<legend>Image to be captionned</legend>
+					<legend>Image to be captioned</legend>
 						<div class="inputContainer">
 							<input type="file" accept="image/*" name="image" id="pictureSelect" />
 						</div>
@@ -28,7 +29,7 @@
 							<label for="radioYolo">Yolo</label>
 							<br/>
 							<input type="radio" id="radioCapt" name="endpointRadio" value="captioning" checked>
-							<label for="radioCapt">Captionning</label>
+							<label for="radioCapt">Captioning</label>
 						</div>
 						<div class="inputContainer">
 							<input type="checkbox" id="check" name="send_result" />
@@ -40,7 +41,9 @@
 			<img id="preview"/>
 		</div>
 		<h2 id="caption"></h2>
-		<img id="boxes"/>
+		<div id='boxesContainer'>
+			<img id="boxes"/>
+		</div>
 		
 		<!--script src="../static/script.js"-->
 		<script src="{{ url_for('static', filename='script.js') }}"></script>
