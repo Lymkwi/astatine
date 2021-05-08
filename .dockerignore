@@ -1,0 +1,14 @@
+# Specific files
+resnet101_attention.pth.tar
+resnet101_wordmap.json
+.*
+
+# From .gitignore
+env
+__pycache__/
+.vscode
+*~
+*#
+*.log
+*.jpg
+*.png
