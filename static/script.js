@@ -42,9 +42,22 @@ function MultiPart_parse(body, boundary) {
 
 	var isRaw = typeof(body) !== 'string';
 
+	let s;
+
 	if (isRaw) {
 		var view = new Uint8Array(body);
-		s = String.fromCharCode.apply(null, view);
+		// This was here before but doesn't work : 
+		// s = String.fromCharCode.apply(null, view);
+		// This took all the bytes in view and passd them to
+		// the function String.fromCharCode as individual arguments.
+		// The problem was that with big images the array was too long 
+		// and there were too many arguments for JavaScript so it threw an error.
+		// Instead, we cut the array in reasonably-sized chunks and convert
+		// each chunk one by one, making it work reliably.
+		s = String.fromCharCode.apply(null, view.slice(0, Math.min(view.byteLength, 100000)));
+		for (i = 100000; i < view.byteLength; i += 100000) {
+			s += String.fromCharCode.apply(null, view.slice(i, Math.min(view.byteLength, i+100000)));
+		}
 	} else {
 		s = body;
 	}
