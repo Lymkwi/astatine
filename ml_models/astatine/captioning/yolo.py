@@ -34,6 +34,7 @@ def plural(singular):
 def formatPlural(item, number):
     return item if number == 1 else plural(item)
 
+"""
 # https://stackoverflow.com/questions/44650888/resize-an-image-without-distortion-opencv
 def image_resize(image, width = None, height = None, inter = cv2.INTER_AREA):
     # initialize the dimensions of the image to be resized and grab the image size
@@ -59,6 +60,7 @@ def image_resize(image, width = None, height = None, inter = cv2.INTER_AREA):
     resized = cv2.resize(image, dim, interpolation = inter)
 
     return resized
+"""
 
 def clip_coords(boxes, img_shape):
     # Clip bounding xyxy bounding boxes to image shape (height, width)
@@ -193,13 +195,14 @@ class SimpleYOLOModule(CaptionModule):
                     lineType=cv2.LINE_AA)
 
         print(f"Writing new image to {img}")
-
+		
+        """
         (height, width) = im0.shape[:2]
         if height > width:
             im0 = image_resize(im0, height=800)
         else:
             im0 = image_resize(im0, width=800)
-        
+        """
         cv2.imwrite(str(img), im0)
 
         situation = {
