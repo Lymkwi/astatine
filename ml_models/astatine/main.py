@@ -37,7 +37,7 @@ def main(img_path, model = None):
     model = model or configuration["captioning"]["module"]
     # Apply the equivalent nicknames
     model = "SimpleYOLOModule" if model == "yolo" else model
-    model = "Resnet101CaptionModule" if model == "captioning" else model
+    model = "Resnet101CaptionModule" if model == "resnet" else model
 
     # Image verification
     logger.debug("Verifying image authenticity")
