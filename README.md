@@ -8,7 +8,7 @@ Astatine is a standalone image captioning server, which includes an API and web 
 
 The API has as many endpoints as modules. It receives multipart requests which contain the image that should be described, and depending on the endpoint some parameters. As of now, there are two endpoints :
 - `/yolo` uses the YOLO algorithm, which describes the image based on the location of each detected object. The HTTP request requires one additional field, `send_result=true|false`, which indicates whether or not the client wants to receive the image with the detected objects. This module is inspired by [ultralytics/yolov5](https://github.com/ultralytics/yolov5)
-- `/captioning` uses the Resnet101+Attention model, heavily inspired by [sgrvinod/a-PyTorch-Tutorial-to-Image-Captioning](https://github.com/sgrvinod/a-PyTorch-Tutorial-to-Image-Captioning). The HTTP request does not require any additional field.
+- `/resnet` uses the Resnet101+Attention model, heavily inspired by [sgrvinod/a-PyTorch-Tutorial-to-Image-Captioning](https://github.com/sgrvinod/a-PyTorch-Tutorial-to-Image-Captioning). The HTTP request does not require any additional field.
 
 The API will send back a multipart response, the field `'caption'` will return the caption the module generated for the image. Furthermore, if `send_result=true` for the YOLO endpoint, the second field will contain the processed image with the detected objects.
 

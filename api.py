@@ -32,7 +32,7 @@ def home():
 @api.route('/<module>', methods=['POST'])
 def module_caption(module):
     # If the endpoint requested doesn't correspond to any existing module
-    if module not in ['yolo', 'captioning']:
+    if module not in ['yolo', 'resnet']:
         return "Module not found.", 404
     # If the request doesn't include any image
     if 'image' not in request.files:

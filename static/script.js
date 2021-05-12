@@ -133,12 +133,12 @@ function getEndpoint() {
 // if the endpoint selected at page load is captioning, disable the checkbox
 // we do this because the captioning cannot yield an image with boxes
 // only the yolo-based model can do this
-checkbox.disabled = (getEndpoint() === 'captioning');
+checkbox.disabled = (getEndpoint() === 'resnet');
 
 // when a new endpoint is selected, enable or disable the checkbox
 for(var i = 0; i < endpointRadios.length; i++) {
 	endpointRadios[i].addEventListener('change', function(event) {
-        checkbox.disabled = (event.target.value === 'captioning')
+        checkbox.disabled = (event.target.value === 'resnet')
     });
 }
 
