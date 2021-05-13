@@ -93,6 +93,7 @@ var pictureSelect = document.getElementById('pictureSelect');
 var preview = document.getElementById('preview');
 var endpointRadios = document.getElementsByName('endpointRadio');
 var checkbox = document.getElementById("check");
+var checkboxLabel = document.getElementById("checkLabel");
 var button = document.getElementById('uploadButton');
 var caption = document.getElementById('caption');
 var resultImage = document.getElementById('boxes');
@@ -130,15 +131,22 @@ function getEndpoint() {
 	}
 }
 
+// functions that allows to show that it is not possible
+// to select the checkbox
+var disableCheckbox = function(disable) {
+	checkbox.disabled = disable
+	checkboxLabel.style.color = disable ? '#696969' : 'black'
+}
+
 // if the endpoint selected at page load is captioning, disable the checkbox
-// we do this because the captioning cannot yield an image with boxes
+// we do this because resnet cannot yield an image with boxes
 // only the yolo-based model can do this
-checkbox.disabled = (getEndpoint() === 'resnet');
+disableCheckbox(getEndpoint() === 'resnet');
 
 // when a new endpoint is selected, enable or disable the checkbox
 for(var i = 0; i < endpointRadios.length; i++) {
 	endpointRadios[i].addEventListener('change', function(event) {
-        checkbox.disabled = (event.target.value === 'resnet')
+		disableCheckbox(getEndpoint() === 'resnet');
     });
 }
 
@@ -237,16 +245,22 @@ window.addEventListener('load', function () {
 				let header = XHR.getResponseHeader('Content-Type');
 				let boundary = MultiPart_getBoundary(header);
 				let res = MultiPart_parse(XHR.response, boundary);
-				if('caption' in res) {
-					caption.textContent = capitalizeFirstLetter(new TextDecoder("utf-8").decode(res['caption']));
-				}
 				resultImage.src = ""
+				resultImage.parentNode.style.alignItems = 'flex-start';
+				resultImage.parentNode.style.height = 'auto';
 				for(key in res) {
 					// the image name should be preview.png / preview.jpg / ...
 					if(key.startsWith('preview.')) {
 						resultImage.src = imgToUrl(res[key], "image/" + key.substring(8));;
+						resultImage.style.maxWidth = '95%';
+						resultImage.style.maxHeight = '90%';
+						resultImage.parentNode.style.height = '65%';
+						resultImage.parentNode.style.alignItems = 'center';
 						break;
 					}
+				}
+				if('caption' in res) {
+					caption.textContent = capitalizeFirstLetter(new TextDecoder("utf-8").decode(res['caption']));
 				}
 			}
 		}

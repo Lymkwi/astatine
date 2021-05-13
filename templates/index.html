@@ -2,26 +2,17 @@
 	<head>
 		<meta charset="UTF-8">
 		<link rel="icon" href="{{ url_for('static', filename='astatine-logo.ico') }}" />
+		<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 		<meta property="og:description" content="Online Image Captioning Tool" />
 		<meta property="og:title" content="Astatine" />
 		<meta property="og:type" content="website" />
-		<title>Astatine - Image Captionning</title>
-		<style>
-			#input {display: flex; flex-flow: row nowrap; align-items: center;}
-			#input form {margin-right: 60px; min-width: 360px;}
-			input {margin-bottom: 5px;}
-			.inputContainer {margin-bottom: 5px;}
-			#uploadButton {margin: 10px 0px 0px 5px;}
-			#preview {height: 100px;}
-			#caption {font-family: sans-serif;}
-			#boxesContainer {height: 70%; display: flex; justify-content: center;}
-			#boxes {max-width: 95%;}
-		</style>
+		<title>Astatine - Image Captioning V1.0</title>
 	</head>
 	
 	<body>
-		<div id="input">
-			<form id="captForm" action="/yolo" method="post">
+		<h1>Astatine web interface for image captioning</h1>
+		<div id="inputContainer">
+			<form id="captForm" method="post">
 				<fieldset>
 					<legend>Image to be captioned</legend>
 						<div class="inputContainer">
@@ -36,15 +27,15 @@
 						</div>
 						<div class="inputContainer">
 							<input type="checkbox" id="check" name="send_result" />
-							<label for="check">Send result image with boxes</label>
+							<label for="check" id="checkLabel">Send result image with boxes</label>
 						</div>
 						<input type="submit" id="uploadButton" value="Upload" disabled/>
 				</fieldset>
 			</form>
 			<img id="preview"/>
 		</div>
-		<h2 id="caption"></h2>
-		<div id='boxesContainer'>
+		<div id='resultContainer'>
+			<h2 id="caption"></h2>
 			<img id="boxes"/>
 		</div>
 		
