@@ -22,7 +22,7 @@ api = Flask(__name__)
 
 api.config['UPLOAD_EXTENSIONS'] = ['png', 'jpg', 'jpeg', 'gif']
 api.config['UPLOAD_FOLDER'] = 'received'
-app.config['MAX_CONTENT_LENGTH'] = 20 * 1024 * 1024 # 20MB max for an upload
+api.config['MAX_CONTENT_LENGTH'] = 20 * 1024 * 1024 # 20MB max for an upload
 
 # Example request :  curl -X POST -F "send_result=true|false" -F image=@image.jpg (-o output.jpg/-i) host:port
 # https://medium.com/@pemagrg/build-a-web-app-using-pythons-flask-for-beginners-f28315256893
