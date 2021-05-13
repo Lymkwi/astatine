@@ -2,6 +2,7 @@
 import os
 import random
 from pathlib import Path
+from threading import Lock
 from requests_toolbelt import MultipartEncoder
 from flask import Flask, request, Response, render_template
 
@@ -23,6 +24,10 @@ api = Flask(__name__)
 api.config['UPLOAD_EXTENSIONS'] = ['png', 'jpg', 'jpeg', 'gif']
 api.config['UPLOAD_FOLDER'] = 'received'
 api.config['MAX_CONTENT_LENGTH'] = 20 * 1024 * 1024 # 20MB max for an upload
+api.config['MAX_CONCURRENT_REQUESTS'] = 4
+
+requestCounter = 0
+requestLock = Lock()
 
 # Example request :  curl -X POST -F "send_result=true|false" -F image=@image.jpg (-o output.jpg/-i) host:port
 # https://medium.com/@pemagrg/build-a-web-app-using-pythons-flask-for-beginners-f28315256893
@@ -51,6 +56,14 @@ def module_caption(module):
     if not upload_path.exists():
         upload_path.mkdir()
 
+    global requestCounter
+    requestLock.acquire()
+    if requestCounter >= api.config['MAX_CONCURRENT_REQUESTS']:
+        requestLock.release()
+        return "Too many requests", 429
+    requestCounter += 1
+    requestLock.release()
+
     id = random.randint(0, 1000)
     while Path(f"{api.config['UPLOAD_FOLDER']}/tmp_{id}.{ext}").is_file():
         id = random.randint(0, 1000)
@@ -61,10 +74,14 @@ def module_caption(module):
         file.save(path)
         caption = load.main(path, module)
 
+        requestLock.acquire()
+        requestCounter -= 1
+        requestLock.release()
+
         resultFile = path
 
         responseFields = {'caption': caption}
-        
+
         if module == 'yolo' and request.form['send_result'] == 'true':
             with open(resultFile, 'rb') as f:
                 responseFields['result'] = (f'preview.{ext}', f.read(), file.content_type)
@@ -72,6 +89,6 @@ def module_caption(module):
         os.remove(path)
         m = MultipartEncoder(fields=responseFields)
         return Response(m.to_string(), mimetype=m.content_type), 200
-    
+
 if __name__ == '__main__':
     api.run(host='0.0.0.0', debug=True, port=6969)#, ssl_context=context)
