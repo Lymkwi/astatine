@@ -21,10 +21,7 @@ download_data()
 
 api = Flask(__name__)
 
-api.config['UPLOAD_EXTENSIONS'] = ['png', 'jpg', 'jpeg', 'gif']
-api.config['UPLOAD_FOLDER'] = 'received'
-api.config['MAX_CONTENT_LENGTH'] = 20 * 1024 * 1024 # 20MB max for an upload
-api.config['MAX_CONCURRENT_REQUESTS'] = 4
+api.config.from_pyfile('config.py')
 
 requestCounter = 0
 requestLock = Lock()
@@ -39,10 +36,10 @@ def home():
 def module_caption(module):
     # If the endpoint requested doesn't correspond to any existing module
     if module not in ['yolo', 'resnet']:
-        return "Module not found.", 404
+        return "ERROR: Module not found.", 404
     # If the request doesn't include any image
     if 'image' not in request.files:
-        return "ERROR", 400
+        return "ERROR: No file sent.", 400
 
     file = request.files['image']
 
