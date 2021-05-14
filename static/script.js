@@ -287,6 +287,12 @@ window.addEventListener('load', function () {
 			disableUpload(false, true);
 		});
 
+		// error message in case the request times out
+		XHR.addEventListener('timeout', function (evt) {
+			setCaptionText('Request timeout, the server might be overloaded', 'error');
+			disableUpload(false, true);
+		});
+
 		cancelButton.onclick = function () {
 			XHR.abort();
 		};
@@ -323,6 +329,9 @@ window.addEventListener('load', function () {
 		// we need this to prevent JavaScript from converting the image
 		// in the response into a string
 		XHR.responseType = "arraybuffer";
+		
+		// if the request has not recieved an answer after 1 minute, it times out
+		XHR.timeout = 60000;
 
 		// finally, we send the request
 		XHR.send(new Blob(data));
