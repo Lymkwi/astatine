@@ -1,5 +1,6 @@
-// author:  Cristian Salazar (christiansalazarh@gmail.com) www.chileshift.cl
-// https://www.npmjs.com/package/parse-multipart
+/* author:  Cristian Salazar (christiansalazarh@gmail.com) www.chileshift.cl
+ * https://www.npmjs.com/package/parse-multipart
+ */
 function MultiPart_getBoundary(header) {
 	var items = header.split(';');
 	if(items)
@@ -13,8 +14,9 @@ function MultiPart_getBoundary(header) {
 	return "";
 }
 
-// Copyright@ 2013-2014 Wolfgang Kuehn, released under the MIT license.
-// https://gist.github.com/woffleloffle/5223f25713b376bb6700c90772ac41ec
+/* Copyright@ 2013-2014 Wolfgang Kuehn, released under the MIT license.
+ * https://gist.github.com/woffleloffle/5223f25713b376bb6700c90772ac41ec
+ */
 function MultiPart_parse(body, boundary) {
 	/*var m = contentType.match(/boundary=(?:"([^"]+)"|([^;]+))/i);
 	if (!m) { throw new Error('Bad content-type header, no multipart boundary'); }
@@ -85,7 +87,7 @@ function MultiPart_parse(body, boundary) {
 }
 
 
-// ==========================================================================================
+/* ========================================================================================== */ 
 
 
 // elements of the HTML page
@@ -93,20 +95,30 @@ var pictureSelect = document.getElementById('pictureSelect');
 var preview = document.getElementById('preview');
 var endpointRadios = document.getElementsByName('endpointRadio');
 var checkbox = document.getElementById("check");
-var checkboxLabel = document.getElementById("checkLabel");
-var button = document.getElementById('uploadButton');
+var uploadButton = document.getElementById('uploadButton');
+var cancelButton = document.getElementById('cancelButton');
 var caption = document.getElementById('caption');
 var resultImage = document.getElementById('boxes');
 
+
+// disables the upload button, this can occur if there is no image selected
+// or if someting else is already being uploaded.
+// in the second case, we need to display the cancel button
+function disableUpload(disableUp, isUploading=false) {
+	uploadButton.disabled = disableUp;
+	//cancelButton.style.display = (isUploading && disableUp) ? 'block' : 'none';
+	cancelButton.disabled = !(isUploading && disableUp);
+	cancelButton.style.color = (cancelButton.disabled) ? '#85454b' : '#9b0f0f';
+}
 
 // loads an image from the computer (selected in the node passed as an argument)
 // and displays it in the image of ID preview
 function loadImageFromInput(node) {
 	if(node.files.length > 0 && node.files[0].type.startsWith("image/")) {
 		preview.src = URL.createObjectURL(node.files[0]);
-		button.disabled = false;
+		disableUpload(false);
 	} else {
-		button.disabled = true;
+		disableUpload(true);
 	}
 }
 
@@ -114,15 +126,13 @@ function loadImageFromInput(node) {
 // selected in pictureSelect, display it
 loadImageFromInput(pictureSelect);
 
-var loadImage = function(event) {
-	loadImageFromInput(event.target)
-};
-
 // when the selected image changes, update the display
-pictureSelect.addEventListener("change", loadImage);
+pictureSelect.addEventListener("change", function(event) {
+	loadImageFromInput(event.target)
+});
 
 
-// yields the value of the currently selected checkbox
+// yields the value of the currently selected radio button
 function getEndpoint() {
 	for(var i = 0; i < endpointRadios.length; i++) {
 		if(endpointRadios[i].checked) {
@@ -135,7 +145,7 @@ function getEndpoint() {
 // to select the checkbox
 var disableCheckbox = function(disable) {
 	checkbox.disabled = disable
-	checkboxLabel.style.color = disable ? '#696969' : 'black'
+	document.getElementById("checkLabel").style.color = disable ? '#696969' : 'black'
 }
 
 // if the endpoint selected at page load is captioning, disable the checkbox
@@ -148,6 +158,23 @@ for(var i = 0; i < endpointRadios.length; i++) {
 	endpointRadios[i].addEventListener('change', function(event) {
 		disableCheckbox(getEndpoint() === 'resnet');
     });
+}
+
+
+// sets the caption text with a certain colour depending on the mode
+// (blue when uploading a file, red when there is an error, else black)
+function setCaptionText(text, mode) {
+	switch(mode) {
+		case 'loading' :
+			caption.style.color = '#1A8BD6';
+			break;
+		case 'error' :
+			caption.style.color = '#A80717';
+			break;
+		default :
+			caption.style.color = 'black';
+	}
+	caption.textContent = text;
 }
 
 
@@ -197,18 +224,72 @@ window.addEventListener('load', function () {
 	});
 
 	// function that allows to send the multipart request
-	// help from : https://developer.mozilla.org/fr/docs/Learn/Forms/Sending_forms_through_JavaScript
+	// with help from : https://developer.mozilla.org/fr/docs/Learn/Forms/Sending_forms_through_JavaScript
 	function sendData() {
-		// If there is a selected file, wait it is read
-		// If there is not, delay the execution of the function
-		if(!file.binary && file.dom.files.length > 0) {
-			setTimeout(sendData, 10);
+		
+		if(!file.binary && file.dom.files.length > 0) {   // If there is a selected file, wait it is read
+			setTimeout(sendData, 10);					  // If there is not, delay the execution of the function
 			return;
 		}
 
 		endpoint = '/' + getEndpoint(); // get the selected endpoint
 
+		// reset the display in case this is not the first captioning
+		resultImage.src = '';
+		resultImage.parentNode.style.alignItems = 'flex-start';
+		resultImage.parentNode.style.height = 'auto';
+		setCaptionText('LOADING ...', 'loading');
+		disableUpload(true, true);
+
 		const XHR = new XMLHttpRequest(); // new request
+
+		// when the response is recieved, insert the elements in the page
+		XHR.onreadystatechange = function() { 
+			if (XHR.readyState === 4) {
+				if(XHR.status === 200) {
+					let header = XHR.getResponseHeader('Content-Type');
+					let boundary = MultiPart_getBoundary(header);
+					let res = MultiPart_parse(XHR.response, boundary);
+					for(key in res) {
+						// the image name should be preview.someting 
+						if(key.startsWith('preview.')) {
+							resultImage.src = imgToUrl(res[key], "image/" + key.substring(8));;
+							resultImage.style.maxWidth = '95%';
+							resultImage.style.maxHeight = '90%';
+							resultImage.parentNode.style.height = '65%';
+							resultImage.parentNode.style.alignItems = 'center';
+							break;
+						}
+					}
+					if('caption' in res) {
+						setCaptionText(capitalizeFirstLetter(new TextDecoder("utf-8").decode(res['caption'])), 'default');
+					} else {
+						setCaptionText('Error : no caption provided in response body, please report this', 'error');
+					}
+				} else if(XHR.status === 429) {
+					setCaptionText('We are sorry but our API is currently overloaded, please try again later', 'error');
+				} else {
+					setCaptionText("HTTP Error : " + XHR.status + " " + XHR.statusText, 'error');
+				}
+				disableUpload(false, true);
+			}
+		}
+
+		// error message in case the transfer encounters en error (connection loss, ...)
+		XHR.addEventListener('error', function (evt) {
+			setCaptionText('Error during file transfer', 'error');
+			disableUpload(false, true);
+		});
+
+		// error message in case the transfer is cancelled by the user
+		XHR.addEventListener('abort', function (evt) {
+			setCaptionText('Transfer aborted', 'error');
+			disableUpload(false, true);
+		});
+
+		cancelButton.onclick = function () {
+			XHR.abort();
+		};
 
 		// We need a separator to define each part of the request
 		const boundary = "blob";
@@ -239,32 +320,6 @@ window.addEventListener('load', function () {
 		// add the required HTTP header to handle a multipart form data POST request
 		XHR.setRequestHeader('Content-Type',"multipart/form-data; boundary=" + boundary);
 
-		// when the response is recieved, insert the elements in the page
-		XHR.onreadystatechange = function() { 
-			if (XHR.readyState == 4 && XHR.status == 200) {
-				let header = XHR.getResponseHeader('Content-Type');
-				let boundary = MultiPart_getBoundary(header);
-				let res = MultiPart_parse(XHR.response, boundary);
-				resultImage.src = ""
-				resultImage.parentNode.style.alignItems = 'flex-start';
-				resultImage.parentNode.style.height = 'auto';
-				for(key in res) {
-					// the image name should be preview.png / preview.jpg / ...
-					if(key.startsWith('preview.')) {
-						resultImage.src = imgToUrl(res[key], "image/" + key.substring(8));;
-						resultImage.style.maxWidth = '95%';
-						resultImage.style.maxHeight = '90%';
-						resultImage.parentNode.style.height = '65%';
-						resultImage.parentNode.style.alignItems = 'center';
-						break;
-					}
-				}
-				if('caption' in res) {
-					caption.textContent = capitalizeFirstLetter(new TextDecoder("utf-8").decode(res['caption']));
-				}
-			}
-		}
-		
 		// we need this to prevent JavaScript from converting the image
 		// in the response into a string
 		XHR.responseType = "arraybuffer";

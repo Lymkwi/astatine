@@ -20,17 +20,20 @@
 							<input type="file" accept="image/*" name="image" id="pictureSelect" />
 						</div>
 						<div class="inputContainer">
-							<input type="radio" id="radioYolo" name="endpointRadio" value="yolo" checked>
-							<label for="radioYolo">Yolo</label>
-							<br/>
 							<input type="radio" id="radioCapt" name="endpointRadio" value="resnet" checked>
 							<label for="radioCapt">Resnet</label>
+							<br/>
+							<input type="radio" id="radioYolo" name="endpointRadio" value="yolo">
+							<label for="radioYolo">Yolo</label>
 						</div>
 						<div class="inputContainer">
 							<input type="checkbox" id="check" name="send_result" />
 							<label for="check" id="checkLabel">Send result image with boxes</label>
 						</div>
-						<input type="submit" id="uploadButton" value="Upload" disabled/>
+						<div class="hBox">
+							<button id="uploadButton" name="upload" type="submit"disabled>Upload</button>
+							<button id="cancelButton" name="cancel" type="button">Cancel</button>
+						</div>
 				</fieldset>
 			</form>
 			<img id="preview"/>
