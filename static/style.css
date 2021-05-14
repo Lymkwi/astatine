@@ -23,7 +23,7 @@ body, #pictureSelect {
 	font-family: "Rubik", sans-serif;
 }
 
-button, fieldset legend {
+#uploadButton, fieldset legend {
 	font-family: "Zekton", sans-serif;
 	font-weight: bold;
 }
@@ -57,12 +57,7 @@ input, .inputContainer {
 	margin-bottom: 5px;
 }
 
-.hBox {
-	display: flex;
-	flex-flow: row nowrap;
-}
-
-button {
+#uploadButton {
 	margin: 10px 10px 0px 5px;
 }
 

@@ -96,19 +96,22 @@ var preview = document.getElementById('preview');
 var endpointRadios = document.getElementsByName('endpointRadio');
 var checkbox = document.getElementById("check");
 var uploadButton = document.getElementById('uploadButton');
-var cancelButton = document.getElementById('cancelButton');
 var caption = document.getElementById('caption');
 var resultImage = document.getElementById('boxes');
 
 
-// disables the upload button, this can occur if there is no image selected
-// or if someting else is already being uploaded.
-// in the second case, we need to display the cancel button
-function disableUpload(disableUp, isUploading=false) {
-	uploadButton.disabled = disableUp;
-	//cancelButton.style.display = (isUploading && disableUp) ? 'block' : 'none';
-	cancelButton.disabled = !(isUploading && disableUp);
-	cancelButton.style.color = (cancelButton.disabled) ? '#85454b' : '#9b0f0f';
+// disables the upload button if there is no image selected
+// or if someting is already being uploaded
+// when the upload is finished and the result has been recovered,
+// the button should be enabled once again if an image is still selected
+var uploading = false;
+var imageLoaded = false;
+function switchUploadButton(uploadingPhase=false) {
+	if(uploadingPhase) {
+		uploading = !uploading;
+	}
+	uploadButton.disabled = !imageLoaded || uploading;
+	console.log(uploading + " " + imageLoaded + " " + uploadButton.disabled);
 }
 
 // loads an image from the computer (selected in the node passed as an argument)
@@ -116,10 +119,11 @@ function disableUpload(disableUp, isUploading=false) {
 function loadImageFromInput(node) {
 	if(node.files.length > 0 && node.files[0].type.startsWith("image/")) {
 		preview.src = URL.createObjectURL(node.files[0]);
-		disableUpload(false);
+		imageLoaded = true;
 	} else {
-		disableUpload(true);
+		imageLoaded = false;
 	}
+	switchUploadButton();
 }
 
 // when the page is loaded, if an image is already 
@@ -239,7 +243,7 @@ window.addEventListener('load', function () {
 		resultImage.parentNode.style.alignItems = 'flex-start';
 		resultImage.parentNode.style.height = 'auto';
 		setCaptionText('LOADING ...', 'loading');
-		disableUpload(true, true);
+		switchUploadButton(true);
 
 		const XHR = new XMLHttpRequest(); // new request
 
@@ -271,31 +275,27 @@ window.addEventListener('load', function () {
 				} else {
 					setCaptionText("HTTP Error : " + XHR.status + " " + XHR.statusText, 'error');
 				}
-				disableUpload(false, true);
+				switchUploadButton(true);
 			}
 		}
 
 		// error message in case the transfer encounters en error (connection loss, ...)
 		XHR.addEventListener('error', function (evt) {
 			setCaptionText('Error during file transfer', 'error');
-			disableUpload(false, true);
+			switchUploadButton(true);
 		});
 
-		// error message in case the transfer is cancelled by the user
+		// error message in case the transfer is cancelled by the user (shouldn't happen)
 		XHR.addEventListener('abort', function (evt) {
 			setCaptionText('Transfer aborted', 'error');
-			disableUpload(false, true);
+			switchUploadButton(true);
 		});
 
 		// error message in case the request times out
 		XHR.addEventListener('timeout', function (evt) {
 			setCaptionText('Request timeout, the server might be overloaded', 'error');
-			disableUpload(false, true);
+			switchUploadButton(true);
 		});
-
-		cancelButton.onclick = function () {
-			XHR.abort();
-		};
 
 		// We need a separator to define each part of the request
 		const boundary = "blob";
