@@ -114,27 +114,6 @@ function switchUploadButton(uploadingPhase=false) {
 	console.log(uploading + " " + imageLoaded + " " + uploadButton.disabled);
 }
 
-// loads an image from the computer (selected in the node passed as an argument)
-// and displays it in the image of ID preview
-function loadImageFromInput(node) {
-	if(node.files.length > 0 && node.files[0].type.startsWith("image/")) {
-		preview.src = URL.createObjectURL(node.files[0]);
-		imageLoaded = true;
-	} else {
-		imageLoaded = false;
-	}
-	switchUploadButton();
-}
-
-// when the page is loaded, if an image is already 
-// selected in pictureSelect, display it
-loadImageFromInput(pictureSelect);
-
-// when the selected image changes, update the display
-pictureSelect.addEventListener("change", function(event) {
-	loadImageFromInput(event.target)
-});
-
 
 // yields the value of the currently selected radio button
 function getEndpoint() {
@@ -213,18 +192,33 @@ window.addEventListener('load', function () {
 		file.binary = reader.result;
 	});
 
-	// if a file is already selected, read it
-	if(file.dom.files[0]) {
-		reader.readAsArrayBuffer(file.dom.files[0]);
+	// loads an image from the computer (selected in the node passed as an argument)
+	// and displays it in the image of ID preview
+	// if the reader was already loading something, stop the reading before loading the current file
+	function loadImageFromInput(node) {
+		if(node.files.length > 0 && node.files[0].type.startsWith("image/")) {
+			preview.src = URL.createObjectURL(node.files[0]);
+			if(reader.readyState === FileReader.LOADING) {
+				reader.abort();
+			}
+			reader.readAsArrayBuffer(node.files[0]);
+			imageLoaded = true;
+		} else {
+			preview.src = '';
+			file.binary = null;
+			imageLoaded = false;
+		}
+		switchUploadButton();
 	}
 
-	// when the the user selects a new file, read it
+	// when the page is loaded, if an image is already selected in pictureSelect, 
+	// read id and display it
+	loadImageFromInput(file.dom);
+
+	// when the the user selects a new file, read it and update the preview
 	// if an image is already being read, abort the first reading
-	file.dom.addEventListener("change", function() {
-		if(reader.readyState === FileReader.LOADING) {
-			reader.abort();
-		}
-		reader.readAsArrayBuffer(file.dom.files[0]);
+	file.dom.addEventListener("change", function(event) {
+		loadImageFromInput(event.target)
 	});
 
 	// function that allows to send the multipart request
