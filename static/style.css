@@ -1,33 +1,39 @@
 @font-face {
-	font-family: "SourceSansPro";
-	src: url("fonts/SourceSansPro.ttf") format("truetype");
-}
-
-body, #pictureSelect {
-	font-family: SourceSansPro, sans-serif;
+	font-family: "Rubik";
+	src: url("fonts/rubik.ttf") format("truetype"),
+		 url("fonts/rubik.woff") format("woff");
 }
 
 @font-face {
     font-family: "Zekton";
-    src: url("fonts/zekton.ttf") format("truetype");
+    src: url("fonts/zekton.ttf") format("truetype"),
+		 url("fonts/zekton.woff") format("woff");
+}
+
+@font-face {
+    font-family: "Good Times";
+    src: url("fonts/good_times.ttf") format("truetype"),
+         url("fonts/good_times.woff") format("woff");
 }
 
 
-#uploadButton, fieldset legend {
+/* fonts */
+
+body, #pictureSelect {
+	font-family: "Rubik", sans-serif;
+}
+
+button, fieldset legend {
 	font-family: "Zekton", sans-serif;
 	font-weight: bold;
 }
 
-@font-face {
-    font-family: "GoodTimes";
-    src: url("fonts/good_times.ttf") format("truetype"),
-         url("fonts/good_times.woff") format("woff"),
-         url("fonts/good_times.otf") format("otf");
+h1 {
+	font-family: "Good Times", sans-serif;
 }
 
-h1 {
-	font-family: GoodTimes, sans-serif;
-}
+
+/* user input */
 
 #inputContainer {
 	display: flex; 
@@ -47,26 +53,28 @@ fieldset {
 	border-radius: 8px;
 }
 
-input {
+input, .inputContainer {
 	margin-bottom: 5px;
 }
 
-.inputContainer {
-	margin-bottom: 5px;
+.hBox {
+	display: flex;
+	flex-flow: row nowrap;
 }
 
-#uploadButton {
-	margin: 10px 0px 0px 5px;
+button {
+	margin: 10px 10px 0px 5px;
 }
 
 #preview {
 	height: 100px;
 }
 
+
+/* results */
+
 #resultContainer {
 	display: flex; 
 	flex-flow: column nowrap; 
 	height: 65%;
 }
-
-
