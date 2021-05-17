@@ -13,11 +13,11 @@ from flask import Flask, request, Response, render_template
 # context.use_privatekey_file('server.key')
 # context.use_certificate_file('server.crt')
 
-from ml_models.astatine import main as load
-from data.download import download_data
-
 # Download missing datasets (~400Mo)
+from data.download import download_data
 download_data()
+
+from ml_models.astatine import main as load
 
 api = Flask(__name__)
 
