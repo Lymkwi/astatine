@@ -30,7 +30,7 @@ def search_modules():
             module_name = cursymbols.module
             module_class = cursymbols.__getattribute__(module_name)
             # And now it's in the current symbols table at the root level
-            known_modules[module_name] = module_class
+            known_modules[module_name] = module_class()
             logger.debug(f"Loaded module '{module_name}' from python module '{modname}'")
 
 search_modules()
@@ -40,4 +40,4 @@ def load_module(name: str):
     # FIXME check that this is not, in fact, monstrously dangerous
     if not name in known_modules:
         assert(False)
-    return known_modules[name]()
+    return known_modules[name]#()
