@@ -2,7 +2,8 @@
 
 ## Introduction
 
-Astatine is a standalone image captioning server, which includes an API and web interface. 
+Astatine is a standalone image captioning server, which includes an API and web interface.
+The Android application using this API can be found at [maysayshrug/Tennessine](https://github.com/maysayshrug/Tennessine)
 
 ## HTTP Requests
 
